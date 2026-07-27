@@ -1,4 +1,15 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom'
+import { onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
+
+import { auth, db } from './firebase/config'
+
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -14,39 +25,93 @@ import AdminDashboard from './pages/AdminDashboard'
 
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
+
 import './App.css'
 
 const PrivateRoute = ({ children, allowedRoles }) => {
-  const userStr = localStorage.getItem('studentUser')
-  if (!userStr) {
+  const [currentUser, setCurrentUser] = useState(null)
+  const [userRole, setUserRole] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setCurrentUser(null)
+        setUserRole(null)
+        setLoading(false)
+        return
+      }
+
+      try {
+        setCurrentUser(firebaseUser)
+
+        const userDocument = await getDoc(
+          doc(db, 'users', firebaseUser.uid)
+        )
+
+        if (userDocument.exists()) {
+          setUserRole(userDocument.data().role || 'student')
+        } else {
+          setUserRole('student')
+        }
+      } catch (error) {
+        console.error('Unable to load user role:', error)
+        setUserRole('student')
+      } finally {
+        setLoading(false)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-slate-600">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!currentUser) {
     return <Navigate to="/login" replace />
   }
-  const user = JSON.parse(userStr)
-  const role = user.role || 'student'
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    if (role === 'counselor') return <Navigate to="/counselor" replace />
-    if (role === 'admin') return <Navigate to="/admin" replace />
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    if (userRole === 'counselor') {
+      return <Navigate to="/counselor" replace />
+    }
+
+    if (userRole === 'admin') {
+      return <Navigate to="/admin" replace />
+    }
+
     return <Navigate to="/dashboard" replace />
   }
 
+  return children
+}
+
+const PublicRoute = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <Sidebar />
-      <div className="flex-1 w-full overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <Navbar />
+
+      <div className="flex-1 w-full">
         {children}
       </div>
     </div>
   )
 }
 
-const PublicRoute = ({ children }) => {
+const PrivateLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
-      <Navbar />
-      <div className="flex-1 w-full">
+    <div className="min-h-screen bg-slate-50">
+      <Sidebar />
+
+      <main className="min-h-screen md:ml-64">
         {children}
-      </div>
+      </main>
     </div>
   )
 }
@@ -55,7 +120,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public routes */}
         <Route
           path="/"
           element={
@@ -64,6 +129,7 @@ function App() {
             </PublicRoute>
           }
         />
+
         <Route
           path="/login"
           element={
@@ -72,6 +138,7 @@ function App() {
             </PublicRoute>
           }
         />
+
         <Route
           path="/register"
           element={
@@ -81,82 +148,111 @@ function App() {
           }
         />
 
-        {/* Private Student Routes */}
+        {/* Student routes */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute allowedRoles={['student']}>
-              <Dashboard />
+              <PrivateLayout>
+                <Dashboard />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
+
         <Route
           path="/mood"
           element={
             <PrivateRoute allowedRoles={['student']}>
-              <MoodTracker />
+              <PrivateLayout>
+                <MoodTracker />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
+
         <Route
           path="/counseling"
           element={
             <PrivateRoute allowedRoles={['student']}>
-              <Counseling />
+              <PrivateLayout>
+                <Counseling />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
+
         <Route
           path="/appointments"
           element={
             <PrivateRoute allowedRoles={['student']}>
-              <Appointments />
+              <PrivateLayout>
+                <Appointments />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
 
-        {/* Counselor UI */}
+        {/* Counsellor route */}
         <Route
           path="/counselor"
           element={
             <PrivateRoute allowedRoles={['counselor', 'admin']}>
-              <CounselorDashboard />
+              <PrivateLayout>
+                <CounselorDashboard />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
 
-        {/* Admin Dashboard */}
+        {/* Admin route */}
         <Route
           path="/admin"
           element={
             <PrivateRoute allowedRoles={['admin']}>
-              <AdminDashboard />
+              <PrivateLayout>
+                <AdminDashboard />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
 
-        {/* Shared Private Routes */}
+        {/* Shared private routes */}
         <Route
           path="/resources"
           element={
-            <PrivateRoute allowedRoles={['student', 'counselor', 'admin']}>
-              <Resources />
+            <PrivateRoute
+              allowedRoles={['student', 'counselor', 'admin']}
+            >
+              <PrivateLayout>
+                <Resources />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
-            <PrivateRoute allowedRoles={['student', 'counselor', 'admin']}>
-              <Profile />
+            <PrivateRoute
+              allowedRoles={['student', 'counselor', 'admin']}
+            >
+              <PrivateLayout>
+                <Profile />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />
+
         <Route
           path="/emergency"
           element={
-            <PrivateRoute allowedRoles={['student', 'counselor', 'admin']}>
-              <Emergency />
+            <PrivateRoute
+              allowedRoles={['student', 'counselor', 'admin']}
+            >
+              <PrivateLayout>
+                <Emergency />
+              </PrivateLayout>
             </PrivateRoute>
           }
         />

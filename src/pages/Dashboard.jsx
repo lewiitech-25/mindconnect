@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Line } from 'react-chartjs-2'
+import { getUserProfile } from '../firebase/userService'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,6 +24,12 @@ import {
   FaRegCheckCircle
 } from 'react-icons/fa'
 
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../firebase/config'
+import { getMoods, addMood } from '../firebase/moodService'
+import { getAppointments } from '../firebase/appointmentService'
+
+// Register ChartJS elements
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 const moodValues = { Happy: 5, Good: 4, Okay: 3, Stressed: 2, Sad: 1 }
@@ -47,66 +54,90 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (!storedUser) {
-      navigate('/login')
-      return
-    }
-    const parsedUser = JSON.parse(storedUser)
-    setUser(parsedUser)
+  const dayIndex = new Date().getDate() % mentalTips.length
+  setRandomTip(mentalTips[dayIndex])
 
-    const dayIndex = new Date().getDate() % mentalTips.length
-    setRandomTip(mentalTips[dayIndex])
-
-    const loadData = () => {
-      const storedMoods = localStorage.getItem(`moods_${parsedUser.email}`)
-      const parsedMoods = storedMoods ? JSON.parse(storedMoods) : []
-      setMoods(parsedMoods)
-
-      const todayString = new Date().toDateString()
-      const loggedToday = parsedMoods.find(
-        (m) => new Date(m.date).toDateString() === todayString
-      )
-      if (loggedToday) {
-        setTodayMood(loggedToday)
+  const unsubscribe = onAuthStateChanged(
+    auth,
+    async (currentUser) => {
+      if (!currentUser) {
+        navigate('/login')
+        return
       }
 
-      const storedAppts = localStorage.getItem(`appointments_${parsedUser.email}`)
-      const appts = storedAppts ? JSON.parse(storedAppts) : []
-      const activeAppt = appts.find((a) => a.status === 'Confirmed')
-      setUpcomingSession(activeAppt || null)
+      try {
+        const profile = await getUserProfile(currentUser.uid)
+        setUser(profile)
+
+        const firebaseMoods = await getMoods(currentUser.uid)
+        setMoods(firebaseMoods)
+
+        const todayString = new Date().toDateString()
+
+        const loggedToday = firebaseMoods.find(
+          (mood) =>
+            new Date(mood.date).toDateString() === todayString
+        )
+
+        setTodayMood(loggedToday || null)
+
+        const firebaseAppointments =
+          await getAppointments(currentUser.uid)
+
+        const activeAppointment =
+          firebaseAppointments.find(
+            (appointment) =>
+              appointment.status === 'Confirmed'
+          )
+
+        setUpcomingSession(activeAppointment || null)
+      } catch (error) {
+        console.error(
+          'Failed to load dashboard data:',
+          error
+        )
+      }
     }
+  )
 
-    loadData()
+  return () => unsubscribe()
+}, [navigate])
 
-    window.addEventListener('storage-update', loadData)
-    return () => window.removeEventListener('storage-update', loadData)
-  }, [navigate])
+  const handleQuickMood = async (selectedMood) => {
+  const currentUser = auth.currentUser
 
-  const handleQuickMood = (selectedMood) => {
-    if (!user) return
-    const newLog = {
-      mood: selectedMood,
-      date: new Date().toISOString(),
-      note: 'Quick check-in from dashboard.'
-    }
-
-    const key = `moods_${user.email}`
-    const storedMoods = localStorage.getItem(key)
-    const currentMoods = storedMoods ? JSON.parse(storedMoods) : []
-    
-    const todayStr = new Date().toDateString()
-    const cleanedMoods = currentMoods.filter(m => new Date(m.date).toDateString() !== todayStr)
-    const updated = [...cleanedMoods, newLog]
-    
-    localStorage.setItem(key, JSON.stringify(updated))
-    setMoods(updated)
-    setTodayMood(newLog)
-    setQuickMoodLogged(true)
-    setTimeout(() => setQuickMoodLogged(false), 3000)
-    
-    window.dispatchEvent(new Event('storage-update'))
+  if (!currentUser) {
+    navigate('/login')
+    return
   }
+
+  try {
+    await addMood(
+      currentUser.uid,
+      selectedMood,
+      'Quick check-in from dashboard.'
+    )
+
+    const firebaseMoods = await getMoods(currentUser.uid)
+    setMoods(firebaseMoods)
+
+    const todayString = new Date().toDateString()
+
+    const loggedToday = firebaseMoods.find(
+      (m) => new Date(m.date).toDateString() === todayString
+    )
+
+    setTodayMood(loggedToday || null)
+    setQuickMoodLogged(true)
+
+    setTimeout(() => {
+      setQuickMoodLogged(false)
+    }, 3000)
+  } catch (error) {
+    console.error('Failed to save quick mood:', error)
+    alert('Unable to save your mood. Please try again.')
+  }
+}
 
   const sortedMoods = [...moods]
     .sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -166,7 +197,7 @@ export default function Dashboard() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter">
+<div className="min-h-screen bg-mesh-light bg-dot-pattern transition-all duration-300 page-transition-enter">
       
       {/* Behance-Style Glass Header */}
       <header className="sticky top-0 z-30 h-16 glass-behance px-6 flex items-center justify-between border-b border-white/60">

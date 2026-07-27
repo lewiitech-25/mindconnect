@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaPhoneAlt, FaExclamationTriangle, FaHospital, FaShieldAlt, FaComments, FaRegBell } from 'react-icons/fa'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../firebase/config'
 
 export default function Emergency() {
   const [user, setUser] = useState(null)
@@ -8,13 +10,17 @@ export default function Emergency() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (!storedUser) {
-      navigate('/login')
-      return
+  const unsubscribe = onAuthStateChanged(
+    auth,
+    (currentUser) => {
+      if (!currentUser) {
+        navigate('/login')
+      }
     }
-    setUser(JSON.parse(storedUser))
-  }, [navigate])
+  )
+
+  return () => unsubscribe()
+}, [navigate])
 
   const handleMockCall = (label, number) => {
     setTriggeredAction(`Calling ${label} (${number}) in demo mode... Call successfully simulated.`)
