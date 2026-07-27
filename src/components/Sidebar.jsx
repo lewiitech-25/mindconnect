@@ -37,7 +37,6 @@ export default function Sidebar() {
 
   const role = user?.role || 'student'
 
-  // Dynamic role-based menu items
   const getMenuItems = () => {
     if (role === 'counselor') {
       return [
@@ -54,7 +53,6 @@ export default function Sidebar() {
         { path: '/profile', name: 'Profile Settings', icon: FaUser },
       ]
     }
-    // Student
     return [
       { path: '/dashboard', name: 'Dashboard', icon: FaThLarge },
       { path: '/mood', name: 'Mood Tracker', icon: FaSmile },
@@ -71,26 +69,26 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-40 h-screen glass-behance transition-all duration-300 flex flex-col justify-between border-r border-white/60 ${
+      className={`fixed top-0 left-0 z-40 h-screen bg-white border-r border-slate-200 shadow-md transition-all duration-300 flex flex-col justify-between ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       <div>
         {/* Header / Logo */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-slate-100">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-slate-200">
           <NavLink
             to={role === 'counselor' ? '/counselor' : role === 'admin' ? '/admin' : '/dashboard'}
             className="flex items-center space-x-2.5 overflow-hidden"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/20">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/20">
               <FaBrain className="text-lg" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
-                <span className="font-poppins text-lg font-bold tracking-tight text-text-custom leading-tight">
+                <span className="font-poppins text-lg font-extrabold tracking-tight text-slate-900 leading-tight">
                   Mind<span className="text-primary">Connect</span>
                 </span>
-                <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase">
+                <span className="text-[9px] font-extrabold tracking-widest text-slate-500 uppercase">
                   {role} Portal
                 </span>
               </div>
@@ -99,7 +97,7 @@ export default function Sidebar() {
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-400 hover:text-primary hover:border-primary transition-colors"
+            className="hidden md:flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:text-primary hover:border-primary transition-colors"
             aria-label="Toggle Sidebar"
           >
             {isCollapsed ? <FaChevronRight size={10} /> : <FaChevronLeft size={10} />}
@@ -108,18 +106,18 @@ export default function Sidebar() {
 
         {/* User Card */}
         {!isCollapsed && user && (
-          <div className="m-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center space-x-3 shadow-xs">
+          <div className="m-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center space-x-3 shadow-2xs">
             <div className="relative shrink-0">
               <img
                 src={role === 'counselor' ? '/images/student_portrait_2.jpg' : '/images/student_portrait_1.jpg'}
                 alt="Profile avatar"
-                className="h-10 w-10 rounded-full object-cover border-2 border-primary/30 shadow-sm"
+                className="h-10 w-10 rounded-full object-cover border-2 border-primary shadow-sm"
               />
               <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white"></span>
             </div>
             <div className="overflow-hidden">
-              <h4 className="text-sm font-semibold text-text-custom truncate leading-snug">{user.name}</h4>
-              <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary uppercase">
+              <h4 className="text-sm font-extrabold text-slate-900 truncate leading-snug">{user.name}</h4>
+              <span className="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded bg-primary/10 text-primary uppercase">
                 {role}
               </span>
             </div>
@@ -132,7 +130,7 @@ export default function Sidebar() {
               <img
                 src={role === 'counselor' ? '/images/student_portrait_2.jpg' : '/images/student_portrait_1.jpg'}
                 alt="Profile avatar"
-                className="h-10 w-10 rounded-full object-cover border-2 border-primary/30 shadow-sm"
+                className="h-10 w-10 rounded-full object-cover border-2 border-primary shadow-sm"
               />
               <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white"></span>
             </div>
@@ -148,10 +146,10 @@ export default function Sidebar() {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ${
+                  `flex items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-bold transition-all duration-200 ${
                     isActive
-                      ? 'bg-primary text-white shadow-md shadow-primary/15'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-primary'
+                      ? 'bg-primary text-white shadow-md shadow-primary/20'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-primary'
                   }`
                 }
               >
@@ -168,10 +166,10 @@ export default function Sidebar() {
         <NavLink
           to="/emergency"
           className={({ isActive }) =>
-            `flex items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-bold transition-all duration-200 border border-transparent ${
+            `flex items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-extrabold transition-all duration-200 border ${
               isActive
-                ? 'bg-red-600 text-white shadow-md shadow-red-500/20'
-                : 'bg-red-50 text-red-600 hover:bg-red-100'
+                ? 'bg-red-600 text-white shadow-md shadow-red-500/20 border-red-600'
+                : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
             }`
           }
         >
@@ -181,10 +179,10 @@ export default function Sidebar() {
 
         <button
           onClick={handleLogout}
-          className="flex w-full items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-red-600 transition-all duration-200"
+          className="flex w-full items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-100 hover:text-red-600 transition-all duration-200"
           aria-label="Logout"
         >
-          <FaSignOutAlt className="text-lg shrink-0" />
+          <FaSignOutAlt className="text-lg shrink-0 text-slate-500" />
           {!isCollapsed && <span className="whitespace-nowrap">Logout</span>}
         </button>
       </div>

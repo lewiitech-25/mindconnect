@@ -10,7 +10,6 @@ import {
   FaTimes,
   FaSmile,
   FaStickyNote,
-  FaRegCheckCircle,
   FaSearch
 } from 'react-icons/fa'
 import MoodCard from '../components/MoodCard'
@@ -40,10 +39,7 @@ export default function CounselorDashboard() {
     }
     setUser(parsed)
 
-    // Load all student appointments across the system
     const loadAllAppointments = () => {
-      const allAppts = []
-      // Add default mock student appointments for counselor view
       const demoAppts = [
         {
           id: 'APT-849201',
@@ -87,7 +83,6 @@ export default function CounselorDashboard() {
         }
       ]
 
-      // Merge with student booked local appointments if any
       const existingUsers = localStorage.getItem('registeredUsers')
       const users = existingUsers ? JSON.parse(existingUsers) : []
       users.forEach((u) => {
@@ -124,7 +119,6 @@ export default function CounselorDashboard() {
     if (stored) {
       setSelectedStudentMoods(JSON.parse(stored))
     } else {
-      // Sample mock moods for Sarah or Marcus
       setSelectedStudentMoods([
         { mood: 'Stressed', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), note: 'Sleepless night preparing for finals.' },
         { mood: 'Sad', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), note: 'Feeling physically tired and unmotivated.' },
@@ -163,29 +157,30 @@ export default function CounselorDashboard() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter">
+    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter text-slate-900">
+      
       {/* Header */}
-      <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
+      <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-2xs">
         <div className="flex items-center space-x-3">
-          <div className="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+          <div className="h-10 w-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-lg border border-emerald-200">
             <FaUserMd />
           </div>
           <div>
-            <h2 className="font-poppins text-sm font-bold text-text-custom leading-tight">{user.name}</h2>
-            <p className="text-[10px] text-slate-500">Counselor Workspace Portal</p>
+            <h2 className="font-poppins text-sm font-extrabold text-slate-900 leading-tight">{user.name}</h2>
+            <p className="text-[11px] font-bold text-slate-600">Counselor Workspace Portal</p>
           </div>
         </div>
 
         {/* Availability Toggle */}
         <button
           onClick={() => setIsOnline(!isOnline)}
-          className={`inline-flex items-center space-x-2 px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
+          className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
             isOnline
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-slate-100 text-slate-500 border-slate-200'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+              : 'bg-slate-100 text-slate-600 border-slate-300'
           }`}
         >
-          <span className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}`}></span>
+          <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}`}></span>
           <span>{isOnline ? 'Available (Online)' : 'Busy (Offline)'}</span>
         </button>
       </header>
@@ -194,40 +189,40 @@ export default function CounselorDashboard() {
       <main className="p-6 max-w-7xl mx-auto space-y-6">
         
         {/* Banner */}
-        <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 p-6 text-white shadow-md space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Clinical Consultation Center</span>
-          <h1 className="font-poppins text-2xl font-bold">Student Consultation Queue</h1>
-          <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+        <div className="rounded-3xl bg-slate-900 p-7 text-white shadow-xl space-y-2 border border-slate-800">
+          <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">Clinical Consultation Center</span>
+          <h1 className="font-poppins text-2xl sm:text-3xl font-extrabold">Student Consultation Queue</h1>
+          <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-2xl leading-relaxed">
             Review booked student sessions, inspect student emotional logs, conduct telehealth meetings, and log clinical recommendations.
           </p>
         </div>
 
         {/* Analytics Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-slate-400 uppercase">Total Sessions</span>
-            <div className="text-2xl font-extrabold text-text-custom mt-1">{appointments.length}</div>
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md">
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Total Sessions</span>
+            <div className="text-3xl font-extrabold text-slate-900 mt-1">{appointments.length}</div>
           </div>
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-emerald-600 uppercase">Confirmed Queue</span>
-            <div className="text-2xl font-extrabold text-emerald-600 mt-1">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md">
+            <span className="text-[10px] font-extrabold text-emerald-700 uppercase tracking-wider">Confirmed Queue</span>
+            <div className="text-3xl font-extrabold text-emerald-600 mt-1">
               {appointments.filter((a) => a.status === 'Confirmed').length}
             </div>
           </div>
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-blue-600 uppercase">Completed Today</span>
-            <div className="text-2xl font-extrabold text-blue-600 mt-1">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md">
+            <span className="text-[10px] font-extrabold text-blue-700 uppercase tracking-wider">Completed Today</span>
+            <div className="text-3xl font-extrabold text-blue-600 mt-1">
               {appointments.filter((a) => a.status === 'Completed').length}
             </div>
           </div>
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-amber-600 uppercase">High Stress Flagged</span>
-            <div className="text-2xl font-extrabold text-amber-600 mt-1">2</div>
+          <div className="p-5 rounded-3xl bg-white border border-amber-200 shadow-md">
+            <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider">High Stress Flagged</span>
+            <div className="text-3xl font-extrabold text-amber-600 mt-1">2</div>
           </div>
         </div>
 
         {/* Queue Table Control */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md space-y-4">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             {/* Filter Tabs */}
@@ -236,10 +231,10 @@ export default function CounselorDashboard() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                     activeTab === tab
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-slate-50 text-slate-600 border border-slate-100 hover:bg-slate-100'
+                      ? 'bg-primary text-white shadow-md shadow-primary/20'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   {tab}
@@ -249,47 +244,47 @@ export default function CounselorDashboard() {
 
             {/* Search filter */}
             <div className="relative max-w-xs w-full">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                <FaSearch size={11} />
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <FaSearch size={12} />
               </span>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search student or ID..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 pl-8 pr-3 text-xs text-text-custom outline-none focus:border-primary"
+                className="w-full rounded-xl border border-slate-300 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-900 outline-none focus:border-primary"
               />
             </div>
           </div>
 
           {/* Appointment Items List */}
-          <div className="space-y-3.5">
+          <div className="space-y-4">
             {filteredAppts.length > 0 ? (
               filteredAppts.map((appt) => (
                 <div
                   key={appt.id}
-                  className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 hover:bg-white hover:border-slate-200 hover:shadow-md transition-all space-y-3"
+                  className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 hover:shadow-lg transition-all space-y-3.5"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100/60 pb-2.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div className="flex items-center space-x-3">
-                      <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-extrabold text-sm">
                         {appt.studentName.charAt(0)}
                       </div>
                       <div>
-                        <h4 className="font-poppins font-bold text-sm text-text-custom flex items-center space-x-2">
+                        <h4 className="font-poppins font-extrabold text-sm text-slate-900 flex items-center space-x-2">
                           <span>{appt.studentName}</span>
-                          <span className="text-[10px] font-mono text-slate-400">({appt.studentId})</span>
+                          <span className="text-[11px] font-mono text-slate-600">({appt.studentId})</span>
                         </h4>
-                        <p className="text-[10px] text-slate-500">{appt.studentEmail}</p>
+                        <p className="text-xs font-semibold text-slate-600">{appt.studentEmail}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       <span
-                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border uppercase ${
+                        className={`px-3 py-1 rounded-xl text-[10px] font-extrabold uppercase border ${
                           appt.status === 'Completed'
-                            ? 'bg-blue-50 text-blue-700 border-blue-100'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                            ? 'bg-blue-50 text-blue-800 border-blue-200'
+                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                         }`}
                       >
                         {appt.status}
@@ -298,41 +293,41 @@ export default function CounselorDashboard() {
                   </div>
 
                   {/* Details grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-600">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-800 font-semibold">
                     <div className="flex items-center space-x-2">
-                      <FaCalendarAlt className="text-slate-400" />
-                      <span>Date: <strong>{appt.date}</strong></span>
+                      <FaCalendarAlt className="text-slate-500" />
+                      <span>Date: <strong className="text-slate-900">{appt.date}</strong></span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <FaClock className="text-slate-400" />
-                      <span>Time: <strong>{appt.timeSlot}</strong></span>
+                      <FaClock className="text-slate-500" />
+                      <span>Time: <strong className="text-slate-900">{appt.timeSlot}</strong></span>
                     </div>
                     <div className="flex items-center space-x-2">
                       {appt.mode === 'Online Video' ? <FaVideo className="text-primary" /> : <FaMapMarkerAlt className="text-secondary" />}
-                      <span>Mode: <strong>{appt.mode}</strong></span>
+                      <span>Mode: <strong className="text-slate-900">{appt.mode}</strong></span>
                     </div>
                   </div>
 
                   {/* Student Reason */}
                   {appt.notes && (
-                    <div className="p-3 rounded-lg bg-white border border-slate-100 text-xs text-slate-600 italic">
+                    <div className="p-3.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 font-medium italic">
                       "Reason: {appt.notes}"
                     </div>
                   )}
 
                   {/* Existing Clinical Note */}
                   {appt.clinicalNote && (
-                    <div className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-100 text-xs text-emerald-800 space-y-1">
-                      <strong className="block text-[10px] font-bold uppercase text-emerald-600">Clinical Recommendation Note:</strong>
-                      <p>{appt.clinicalNote}</p>
+                    <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                      <strong className="block text-[10px] font-extrabold uppercase text-emerald-800">Clinical Recommendation Note:</strong>
+                      <p className="font-medium">{appt.clinicalNote}</p>
                     </div>
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex items-center justify-between border-t border-slate-100/60 pt-3">
+                  <div className="flex items-center justify-between border-t border-slate-200 pt-3">
                     <button
                       onClick={() => handleViewStudentMoods(appt.studentEmail, appt.studentName)}
-                      className="inline-flex items-center space-x-1.5 text-xs font-bold text-primary hover:text-primary/80 transition-colors"
+                      className="inline-flex items-center space-x-1.5 text-xs font-extrabold text-primary hover:text-primary/80 transition-colors"
                     >
                       <FaSmile />
                       <span>Review Shared Mood History</span>
@@ -344,16 +339,16 @@ export default function CounselorDashboard() {
                           setClinicalNotesModal(appt)
                           setClinicalNoteText(appt.clinicalNote || '')
                         }}
-                        className="inline-flex items-center space-x-1 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="inline-flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 transition-colors shadow-2xs"
                       >
-                        <FaStickyNote className="text-slate-400" />
+                        <FaStickyNote className="text-slate-500" />
                         <span>Add Clinical Note</span>
                       </button>
 
                       {appt.status !== 'Completed' && (
                         <button
                           onClick={() => handleUpdateStatus(appt.id, 'Completed')}
-                          className="inline-flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
+                          className="inline-flex items-center space-x-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-md"
                         >
                           <FaCheckCircle />
                           <span>Mark Complete</span>
@@ -364,7 +359,7 @@ export default function CounselorDashboard() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 border border-dashed border-slate-200 rounded-xl text-slate-400 text-xs">
+              <div className="text-center py-12 border border-dashed border-slate-300 rounded-2xl text-slate-500 font-medium text-xs">
                 No matching student sessions found in the consultation queue.
               </div>
             )}
@@ -377,9 +372,9 @@ export default function CounselorDashboard() {
       {/* Modal: View Student Shared Mood History */}
       {selectedStudentMoods && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl border border-slate-100 max-h-[80vh] flex flex-col justify-between">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 max-h-[80vh] flex flex-col justify-between text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-              <h3 className="font-poppins font-bold text-text-custom text-base flex items-center space-x-2">
+              <h3 className="font-poppins font-extrabold text-slate-900 text-base flex items-center space-x-2">
                 <FaSmile className="text-primary" />
                 <span>Confidential Mood History - {activeStudentName}</span>
               </h3>
@@ -400,7 +395,7 @@ export default function CounselorDashboard() {
             <div className="border-t border-slate-100 pt-4 mt-4 flex justify-end">
               <button
                 onClick={() => setSelectedStudentMoods(null)}
-                className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200"
+                className="rounded-xl bg-slate-200 px-5 py-2.5 text-xs font-bold text-slate-800 hover:bg-slate-300"
               >
                 Close Window
               </button>
@@ -412,9 +407,9 @@ export default function CounselorDashboard() {
       {/* Modal: Add Clinical Recommendation Note */}
       {clinicalNotesModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-100 space-y-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4 text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-poppins font-bold text-text-custom text-sm">
+              <h3 className="font-poppins font-extrabold text-slate-900 text-sm">
                 Log Clinical Note - {clinicalNotesModal.studentName}
               </h3>
               <button onClick={() => setClinicalNotesModal(null)} className="text-slate-400 hover:text-slate-600">
@@ -423,26 +418,26 @@ export default function CounselorDashboard() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase text-slate-500">Counselor Assessment & Recommendations</label>
+              <label className="text-[11px] font-bold uppercase text-slate-700">Counselor Assessment & Recommendations</label>
               <textarea
                 value={clinicalNoteText}
                 onChange={(e) => setClinicalNoteText(e.target.value)}
                 placeholder="Enter clinical advice, suggested exercises, or follow-up timelines..."
                 rows="4"
-                className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs text-text-custom outline-none focus:border-primary resize-none"
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs text-slate-900 outline-none focus:border-primary resize-none"
               />
             </div>
 
             <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
               <button
                 onClick={() => setClinicalNotesModal(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50"
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveClinicalNote}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/95 shadow-sm"
+                className="px-4 py-2 rounded-xl text-xs font-extrabold bg-primary text-white hover:bg-primary/95 shadow-md"
               >
                 Save & Complete Session
               </button>
