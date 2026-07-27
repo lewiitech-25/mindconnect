@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FaUser, FaLock, FaBell, FaShieldAlt, FaTrashAlt, FaCheckCircle } from 'react-icons/fa'
+import { onAuthStateChanged } from 'firebase/auth'
+import { FaUser, FaLock, FaBell, FaShieldAlt, FaTrashAlt } from 'react-icons/fa'
+import { auth } from '../firebase/config'
+import {
+  changeUserPassword,
+  eraseUserAccount,
+  getUserProfile,
+  updateNotificationPreferences
+} from '../firebase/userService'
 
 export default function Profile() {
   const [user, setUser] = useState(null)
@@ -15,19 +23,36 @@ export default function Profile() {
   const [weeklyReports, setWeeklyReports] = useState(true)
   const [apptReminders, setApptReminders] = useState(true)
   const [settingsSuccess, setSettingsSuccess] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (!storedUser) {
-      navigate('/login')
-      return
-    }
-    setUser(JSON.parse(storedUser))
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        navigate('/login')
+        return
+      }
+
+      try {
+        const profile = await getUserProfile(currentUser.uid)
+        setUser(profile)
+
+        const preferences = profile.notificationPreferences || {}
+
+        setEmailAlerts(preferences.emailAlerts ?? true)
+        setSmsAlerts(preferences.smsAlerts ?? false)
+        setWeeklyReports(preferences.weeklyReports ?? true)
+        setApptReminders(preferences.apptReminders ?? true)
+      } catch (error) {
+        console.error('Failed to load profile:', error)
+      }
+    })
+
+    return () => unsubscribe()
   }, [navigate])
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault()
     setPassError('')
     setPassSuccess(false)
@@ -47,69 +72,99 @@ export default function Profile() {
       return
     }
 
-    // Update in registeredUsers
-    const existingUsers = localStorage.getItem('registeredUsers')
-    const users = existingUsers ? JSON.parse(existingUsers) : []
-    const updatedUsers = users.map((u) => {
-      if (u.email.toLowerCase() === user.email.toLowerCase()) {
-        return { ...u, password }
+    try {
+      await changeUserPassword(password)
+
+      setPassword('')
+      setConfirmPassword('')
+      setPassSuccess(true)
+
+      setTimeout(() => {
+        setPassSuccess(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Failed to change password:', error)
+
+      if (error.code === 'auth/requires-recent-login') {
+        setPassError('Please log out, log in again, and retry the password change.')
+      } else {
+        setPassError('Unable to update your password. Please try again.')
       }
-      return u
-    })
-    localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
-
-    // Update active user session
-    const updatedActive = { ...user, password }
-    localStorage.setItem('studentUser', JSON.stringify(updatedActive))
-    setUser(updatedActive)
-
-    setPassword('')
-    setConfirmPassword('')
-    setPassSuccess(true)
-    setTimeout(() => setPassSuccess(false), 3000)
+    }
   }
 
-  const handleSaveNotifications = (e) => {
+  const handleSaveNotifications = async (e) => {
     e.preventDefault()
-    setSettingsSuccess(true)
-    setTimeout(() => setSettingsSuccess(false), 3000)
+
+    const currentUser = auth.currentUser
+
+    if (!currentUser) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      await updateNotificationPreferences(currentUser.uid, {
+        emailAlerts,
+        smsAlerts,
+        weeklyReports,
+        apptReminders
+      })
+
+      setSettingsSuccess(true)
+
+      setTimeout(() => {
+        setSettingsSuccess(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Failed to save notification preferences:', error)
+      alert('Unable to save your preferences. Please try again.')
+    }
   }
 
-  const handleClearAllData = () => {
-    if (
-      window.confirm(
-        'WARNING: This will permanently erase your profile credentials, mood logs, and appointments. You will be logged out immediately. Do you wish to continue?'
-      )
-    ) {
-      if (user) {
-        // Remove specific data
-        localStorage.removeItem(`moods_${user.email}`)
-        localStorage.removeItem(`appointments_${user.email}`)
-        
-        // Remove from users list
-        const existingUsers = localStorage.getItem('registeredUsers')
-        const users = existingUsers ? JSON.parse(existingUsers) : []
-        const filtered = users.filter((u) => u.email.toLowerCase() !== user.email.toLowerCase())
-        localStorage.setItem('registeredUsers', JSON.stringify(filtered))
-      }
+  const handleClearAllData = async () => {
+    const confirmed = window.confirm(
+      'WARNING: This will permanently erase your profile, mood logs, appointments, and Firebase account. This action cannot be undone. Continue?'
+    )
 
-      // Log out
-      localStorage.removeItem('studentUser')
+    if (!confirmed) return
+
+    const currentUser = auth.currentUser
+
+    if (!currentUser) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      setIsDeleting(true)
+
+      await eraseUserAccount(currentUser.uid)
+
       navigate('/')
+    } catch (error) {
+      console.error('Failed to erase account:', error)
+      setIsDeleting(false)
+
+      if (error.code === 'auth/requires-recent-login') {
+        alert('For security, please log out, log in again, and retry account deletion.')
+      } else {
+        alert('Unable to erase the account. Please try again.')
+      }
     }
   }
 
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-slate-50 pl-0 md:pl-64 transition-all duration-300">
+    <div className="min-h-screen bg-slate-50 transition-all duration-300">
       {/* Header Panel */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
         <h2 className="font-poppins text-lg font-bold text-text-custom">Profile Settings</h2>
       </header>
 
       {/* Main Workspace */}
-      <main className="p-6 max-w-4xl mx-auto space-y-6 animate-in fade-in duration-300">
+      <main className="p-6 max-w-6xl space-y-6">
         
         {/* Intro */}
         <div className="space-y-1">
@@ -292,16 +347,17 @@ export default function Profile() {
                 <span>Confidentiality & Erasure</span>
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                MindConnect utilizes <strong>privacy-by-design</strong>. All logged information, counselor reservations, and test profiles are isolated strictly to this browser cache. Deleting details completely sanitizes all records.
+                MindConnect uses <strong>privacy-by-design</strong>. Your profile, mood logs, appointments, and preferences are stored securely under your Firebase account. Erasing your account permanently deletes these records.
               </p>
             </div>
             
             <button
               onClick={handleClearAllData}
-              className="w-full inline-flex items-center justify-center space-x-1.5 rounded-xl bg-red-600 py-2.5 text-xs font-bold text-white shadow-md shadow-red-500/15 hover:bg-red-700 transition-all"
+              disabled={isDeleting}
+              className="w-full inline-flex items-center justify-center space-x-1.5 rounded-xl bg-red-600 py-2.5 text-xs font-bold text-white shadow-md shadow-red-500/15 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
             >
               <FaTrashAlt size={10} />
-              <span>Erase Entire Account</span>
+              <span>{isDeleting ? 'Erasing Account...' : 'Erase Entire Account'}</span>
             </button>
           </div>
 

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FaBrain, FaSignOutAlt, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { auth } from '../firebase/config'
+import { getUserProfile } from '../firebase/userService'
 
 export default function Navbar() {
   const [user, setUser] = useState(null)
@@ -9,19 +12,66 @@ export default function Navbar() {
   const location = useLocation()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    } else {
-      setUser(null)
-    }
-  }, [location])
+  const unsubscribe = onAuthStateChanged(
+    auth,
+    async (currentUser) => {
+      if (!currentUser) {
+        setUser(null)
+        return
+      }
 
-  const handleLogout = () => {
-    localStorage.removeItem('studentUser')
+      // Immediately show basic Firebase Auth information.
+      setUser({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        name:
+          currentUser.displayName ||
+          'Student'
+      })
+
+      try {
+        const profile = await getUserProfile(
+          currentUser.uid
+        )
+
+        if (profile) {
+          setUser(profile)
+        }
+      } catch (error) {
+        /*
+         * During registration, Authentication is created
+         * before the Firestore profile. The temporary
+         * missing-profile condition is expected.
+         */
+        if (
+          error.message !==
+          'User profile was not found.'
+        ) {
+          console.error(
+            'Failed to load navbar user:',
+            error
+          )
+        }
+      }
+    }
+  )
+
+  return () => unsubscribe()
+}, [])
+
+  const handleLogout = async () => {
+  try {
+    await signOut(auth)
     setUser(null)
-    navigate('/')
-  };
+    setIsOpen(false)
+    navigate('/login')
+  } catch (error) {
+    console.error(
+      'Failed to log out:',
+      error
+    )
+  }
+}
 
   const isPublicPage = ['/', '/login', '/register'].includes(location.pathname)
 

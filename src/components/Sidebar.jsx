@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { auth } from '../firebase/config'
+import { getUserProfile } from '../firebase/userService'
 import {
   FaBrain,
   FaThLarge,
@@ -20,19 +23,59 @@ export default function Sidebar() {
   const location = useLocation()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    } else {
-      // In a real app we'd redirect, but here App.jsx handles auth guards.
-      setUser({ name: 'Student', email: 'student@uni.edu' })
-    }
-  }, [location])
+  const unsubscribe = onAuthStateChanged(
+    auth,
+    async (currentUser) => {
+      if (!currentUser) {
+        setUser(null)
+        return
+      }
 
-  const handleLogout = () => {
-    localStorage.removeItem('studentUser')
-    navigate('/')
+      setUser({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        name:
+          currentUser.displayName ||
+          'Student'
+      })
+
+      try {
+        const profile = await getUserProfile(
+          currentUser.uid
+        )
+
+        if (profile) {
+          setUser(profile)
+        }
+      } catch (error) {
+        if (
+          error.message !==
+          'User profile was not found.'
+        ) {
+          console.error(
+            'Failed to load sidebar user:',
+            error
+          )
+        }
+      }
+    }
+  )
+
+  return () => unsubscribe()
+}, [])
+
+  const handleLogout = async () => {
+  try {
+    await signOut(auth)
+    setUser(null)
+    navigate('/login')
+  } catch (error) {
+    console.error(
+      'Failed to log out:',
+      error
+    )
   }
+}
 
   const menuItems = [
     { path: '/dashboard', name: 'Dashboard', icon: FaThLarge },
