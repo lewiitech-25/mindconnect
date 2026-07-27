@@ -120,7 +120,7 @@ export default function AdminDashboard() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-slate-50 pl-0 md:pl-64 transition-all duration-300">
+    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter">
       {/* Header */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
         <div className="flex items-center space-x-3">

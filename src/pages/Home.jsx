@@ -1,28 +1,30 @@
 import { Link } from 'react-router-dom'
-import { FaSmile, FaCalendarCheck, FaBookOpen, FaPhoneAlt, FaBrain, FaQuoteLeft, FaLock, FaUniversalAccess, FaStar, FaUserCheck } from 'react-icons/fa'
+import { FaSmile, FaCalendarCheck, FaBookOpen, FaPhoneAlt, FaBrain, FaQuoteLeft, FaLock, FaStar, FaUserCheck, FaHeartbeat } from 'react-icons/fa'
 import Footer from '../components/Footer'
 
 export default function Home() {
   return (
-    <div className="font-sans min-h-screen bg-slate-50 flex flex-col justify-between overflow-x-hidden">
+    <div className="font-sans min-h-screen bg-mesh-light bg-dot-pattern flex flex-col justify-between overflow-x-hidden page-transition-enter">
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-blue-50/70 via-white to-slate-50">
-        {/* Animated Background Orbs */}
-        <div className="absolute top-[-10%] left-[-10%] h-[550px] w-[550px] rounded-full bg-primary/10 blur-3xl animate-pulse-glow"></div>
-        <div className="absolute bottom-[5%] right-[-10%] h-[450px] w-[450px] rounded-full bg-secondary/10 blur-3xl animate-pulse-glow"></div>
+      <section className="relative overflow-hidden py-16 lg:py-24">
+        
+        {/* Behance-Style Floating Ambient Light Orbs */}
+        <div className="absolute top-[-5%] left-[-5%] h-[600px] w-[600px] rounded-full bg-gradient-to-tr from-blue-400/20 via-sky-300/20 to-primary/10 blur-3xl animate-orb-1 pointer-events-none"></div>
+        <div className="absolute bottom-[0%] right-[-5%] h-[550px] w-[550px] rounded-full bg-gradient-to-br from-emerald-400/20 via-teal-300/20 to-secondary/10 blur-3xl animate-orb-2 pointer-events-none"></div>
+        <div className="absolute top-[40%] left-[35%] h-[350px] w-[350px] rounded-full bg-purple-400/10 blur-3xl animate-pulse-glow pointer-events-none"></div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Left Copy Column */}
+            {/* Left Column */}
             <div className="lg:col-span-6 text-center lg:text-left space-y-6">
-              <span className="inline-flex items-center space-x-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary shadow-sm border border-primary/10">
-                <FaBrain className="animate-pulse text-sm" />
+              <span className="inline-flex items-center space-x-2 rounded-full bg-white/90 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-primary shadow-sm border border-primary/20">
+                <FaHeartbeat className="animate-pulse text-sm text-secondary" />
                 <span>CONFIDENTIAL STUDENT WELLNESS PORTAL</span>
               </span>
 
-              <h1 className="font-poppins text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-text-custom leading-[1.15]">
+              <h1 className="font-poppins text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-text-custom leading-[1.14]">
                 Your Mental Wellness Matters. <br />
                 <span className="bg-gradient-to-r from-primary via-blue-500 to-secondary bg-clip-text text-transparent">
                   MindConnect is Here.
@@ -36,13 +38,13 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
                 <Link
                   to="/register"
-                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl bg-primary px-7 py-4 text-sm font-bold text-white shadow-xl shadow-primary/25 hover:bg-primary/95 hover:shadow-primary/35 hover:-translate-y-1 transition-all duration-300"
+                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary to-blue-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 transition-all duration-300"
                 >
                   Get Started (Sign Up)
                 </Link>
                 <Link
                   to="/login"
-                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white/80 backdrop-blur-md px-7 py-4 text-sm font-bold text-slate-700 hover:bg-white hover:border-slate-300 hover:-translate-y-1 shadow-sm transition-all duration-300"
+                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-2xl glass-behance px-8 py-4 text-sm font-bold text-slate-700 hover:bg-white hover:-translate-y-1 shadow-sm transition-all duration-300"
                 >
                   Student Login
                 </Link>
@@ -50,34 +52,33 @@ export default function Home() {
 
               {/* Trust Badges */}
               <div className="pt-6 flex items-center justify-center lg:justify-start space-x-6 text-slate-500 text-xs font-medium">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-200/60 shadow-2xs">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                  <span>Active Campus Portal</span>
+                  <span className="font-semibold text-slate-700">Active Campus Portal</span>
                 </div>
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-1.5 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-200/60 shadow-2xs">
                   <FaStar className="text-amber-400" />
-                  <span className="font-bold text-slate-700">4.9/5</span>
+                  <span className="font-bold text-slate-800">4.9/5</span>
                   <span>Student Rating</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Visual Image & Floating Badges Column */}
+            {/* Right Hero Image Column with Behance Visuals */}
             <div className="lg:col-span-6 relative flex justify-center">
               
-              {/* Main Realistic Hero Image Box with Glass Border */}
-              <div className="relative rounded-3xl p-3 bg-white/60 glass shadow-2xl max-w-md lg:max-w-none group">
+              {/* Main Realistic Hero Image Box */}
+              <div className="relative rounded-3xl p-3 glass-behance shadow-2xl max-w-md lg:max-w-none group">
                 <img
                   src="/images/hero_students.jpg"
                   alt="University students collaborating cheerfully"
-                  className="rounded-2xl object-cover w-full h-[380px] sm:h-[420px] shadow-md group-hover:scale-[1.01] transition-transform duration-500"
+                  className="rounded-2xl object-cover w-full h-[380px] sm:h-[430px] shadow-md group-hover:scale-[1.01] transition-transform duration-500"
                 />
 
-                {/* Overlay gradient for depth */}
-                <div className="absolute inset-3 rounded-2xl bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none"></div>
+                <div className="absolute inset-3 rounded-2xl bg-gradient-to-t from-slate-900/35 via-transparent to-transparent pointer-events-none"></div>
 
-                {/* FLOATING BADGE 1 (Top Left) */}
-                <div className="absolute -top-6 -left-4 sm:-left-6 glass p-3.5 rounded-2xl shadow-xl border border-white/80 flex items-center space-x-3 animate-float backdrop-blur-xl">
+                {/* FLOATING BADGE 1 */}
+                <div className="absolute -top-6 -left-4 sm:-left-6 glass-behance p-3.5 rounded-2xl shadow-xl flex items-center space-x-3 animate-float">
                   <div className="h-10 w-10 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl shadow-sm">
                     😀
                   </div>
@@ -87,8 +88,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* FLOATING BADGE 2 (Top Right) */}
-                <div className="absolute top-12 -right-4 sm:-right-6 glass p-3.5 rounded-2xl shadow-xl border border-white/80 flex items-center space-x-3 animate-float-reverse backdrop-blur-xl">
+                {/* FLOATING BADGE 2 */}
+                <div className="absolute top-12 -right-4 sm:-right-6 glass-behance p-3.5 rounded-2xl shadow-xl flex items-center space-x-3 animate-float-reverse">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-lg shadow-sm">
                     <FaCalendarCheck />
                   </div>
@@ -98,8 +99,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* FLOATING BADGE 3 (Bottom Left) */}
-                <div className="absolute -bottom-6 -left-2 sm:-left-4 glass p-3.5 rounded-2xl shadow-xl border border-white/80 flex items-center space-x-3 animate-float backdrop-blur-xl">
+                {/* FLOATING BADGE 3 */}
+                <div className="absolute -bottom-6 -left-2 sm:-left-4 glass-behance p-3.5 rounded-2xl shadow-xl flex items-center space-x-3 animate-float">
                   <div className="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shadow-sm">
                     <FaLock />
                   </div>
@@ -112,8 +113,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* FLOATING BADGE 4 (Bottom Right) */}
-                <div className="absolute bottom-8 -right-4 sm:-right-6 glass px-4 py-2.5 rounded-2xl shadow-xl border border-white/80 flex items-center space-x-2 animate-float-reverse backdrop-blur-xl">
+                {/* FLOATING BADGE 4 */}
+                <div className="absolute bottom-8 -right-4 sm:-right-6 glass-behance px-4 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 animate-float-reverse">
                   <FaUserCheck className="text-secondary text-sm" />
                   <span className="text-xs font-bold text-slate-800">Free for Students</span>
                 </div>
@@ -127,7 +128,7 @@ export default function Home() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="py-20 bg-white border-y border-slate-100 relative">
+      <section id="features" className="py-20 relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="font-poppins text-3xl font-bold tracking-tight text-text-custom sm:text-4xl">
@@ -140,8 +141,8 @@ export default function Home() {
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             
-            <div className="p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-slate-200 transition-all duration-300 group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-5 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="p-6 rounded-3xl glass-behance-card group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-5 shadow-sm group-hover:scale-110 transition-transform">
                 <FaSmile className="text-xl" />
               </div>
               <h3 className="font-poppins font-bold text-text-custom text-base mb-2">Mood Logging</h3>
@@ -150,8 +151,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-slate-200 transition-all duration-300 group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/10 text-secondary mb-5 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="p-6 rounded-3xl glass-behance-card group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary/10 text-secondary mb-5 shadow-sm group-hover:scale-110 transition-transform">
                 <FaCalendarCheck className="text-xl" />
               </div>
               <h3 className="font-poppins font-bold text-text-custom text-base mb-2">Counseling Booking</h3>
@@ -160,8 +161,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-slate-200 transition-all duration-300 group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-amber-500 mb-5 shadow-sm border border-yellow-100 group-hover:scale-110 transition-transform">
+            <div className="p-6 rounded-3xl glass-behance-card group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 mb-5 shadow-sm border border-amber-100 group-hover:scale-110 transition-transform">
                 <FaBookOpen className="text-xl" />
               </div>
               <h3 className="font-poppins font-bold text-text-custom text-base mb-2">Wellness Library</h3>
@@ -170,8 +171,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-red-100 bg-red-50/20 hover:bg-red-50/40 hover:shadow-xl transition-all duration-300 group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 text-red-600 mb-5 shadow-sm border border-red-200 animate-pulse group-hover:scale-110 transition-transform">
+            <div className="p-6 rounded-3xl glass-behance-card border-red-100/80 bg-red-50/20 group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 mb-5 shadow-sm border border-red-200 animate-pulse group-hover:scale-110 transition-transform">
                 <FaPhoneAlt className="text-xl" />
               </div>
               <h3 className="font-poppins font-bold text-red-600 text-base mb-2">Crisis Assistance</h3>
@@ -185,11 +186,11 @@ export default function Home() {
       </section>
 
       {/* Realistic Student Testimonials */}
-      <section id="testimonials" className="py-20 bg-slate-50 relative overflow-hidden">
+      <section id="testimonials" className="py-20 relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/5 px-3 py-1 rounded-full border border-primary/10">Real Student Experiences</span>
-            <h2 className="font-poppins text-3xl font-bold tracking-tight text-text-custom mt-3">
+            <span className="text-xs font-bold text-primary uppercase tracking-widest bg-white/80 px-3.5 py-1 rounded-full border border-primary/20 shadow-2xs">Real Student Experiences</span>
+            <h2 className="font-poppins text-3xl font-bold tracking-tight text-text-custom mt-4">
               Trusted by Students Across Campus
             </h2>
             <p className="mt-3 text-sm text-slate-500 leading-relaxed">
@@ -200,8 +201,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             
             {/* Student 1 */}
-            <div className="p-8 rounded-3xl border border-slate-200/80 bg-white shadow-sm hover:shadow-md transition-all duration-300 relative flex flex-col justify-between">
-              <FaQuoteLeft className="text-slate-100 text-6xl absolute top-6 right-6 pointer-events-none" />
+            <div className="p-8 rounded-3xl glass-behance-card relative flex flex-col justify-between">
+              <FaQuoteLeft className="text-slate-200/80 text-6xl absolute top-6 right-6 pointer-events-none" />
               <p className="text-slate-600 text-sm italic leading-relaxed relative z-10 mb-6">
                 "Exam weeks used to trigger overwhelming panic. Logging my daily stress on the Mood Tracker helped me spot triggers early, and booking a confidential session with Dr. Jane was so effortless."
               </p>
@@ -209,7 +210,7 @@ export default function Home() {
                 <img
                   src="/images/student_portrait_1.jpg"
                   alt="Student portrait"
-                  className="h-12 w-12 rounded-full object-cover border-2 border-primary/20 shadow-sm"
+                  className="h-12 w-12 rounded-full object-cover border-2 border-primary/30 shadow-sm"
                 />
                 <div>
                   <h4 className="text-sm font-bold text-text-custom">Sarah Jenkins</h4>
@@ -219,8 +220,8 @@ export default function Home() {
             </div>
 
             {/* Student 2 */}
-            <div className="p-8 rounded-3xl border border-slate-200/80 bg-white shadow-sm hover:shadow-md transition-all duration-300 relative flex flex-col justify-between">
-              <FaQuoteLeft className="text-slate-100 text-6xl absolute top-6 right-6 pointer-events-none" />
+            <div className="p-8 rounded-3xl glass-behance-card relative flex flex-col justify-between">
+              <FaQuoteLeft className="text-slate-200/80 text-6xl absolute top-6 right-6 pointer-events-none" />
               <p className="text-slate-600 text-sm italic leading-relaxed relative z-10 mb-6">
                 "The Wellness Library's guided box-breathing videos and study tips were a lifesaver during finals. The design is calm, responsive, and makes seeking help completely stress-free."
               </p>
@@ -228,7 +229,7 @@ export default function Home() {
                 <img
                   src="/images/student_portrait_2.jpg"
                   alt="Student portrait"
-                  className="h-12 w-12 rounded-full object-cover border-2 border-secondary/20 shadow-sm"
+                  className="h-12 w-12 rounded-full object-cover border-2 border-secondary/30 shadow-sm"
                 />
                 <div>
                   <h4 className="text-sm font-bold text-text-custom">Marcus Vance</h4>

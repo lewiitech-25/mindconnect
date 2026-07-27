@@ -59,7 +59,7 @@ export default function Emergency() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-slate-50 pl-0 md:pl-64 transition-all duration-300">
+    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter">
       {/* Header Panel */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
         <h2 className="font-poppins text-lg font-bold text-red-600 flex items-center space-x-1.5">

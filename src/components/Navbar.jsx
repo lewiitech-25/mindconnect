@@ -30,7 +30,7 @@ export default function Navbar() {
   if (!isPublicPage) return null
 
   return (
-    <nav className="sticky top-0 z-50 w-full glass shadow-sm transition-all duration-300">
+    <nav className="sticky top-0 z-50 w-full glass-behance transition-all duration-300 border-b border-white/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo Section */}
