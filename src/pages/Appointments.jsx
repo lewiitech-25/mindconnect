@@ -123,8 +123,9 @@ export default function Appointments() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 transition-all duration-300">
-      <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
+  <div className="min-h-screen bg-mesh-light bg-dot-pattern transition-all duration-300 page-transition-enter">
+    {/* Header Panel */}
+    <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
         <div>
           <h2 className="font-poppins text-lg font-bold text-text-custom">
             Manage Consultations

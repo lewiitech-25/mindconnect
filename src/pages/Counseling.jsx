@@ -309,7 +309,8 @@ export default function Counseling() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pl-0 md:pl-64 transition-all duration-300">
+<div className="min-h-screen bg-mesh-light bg-dot-pattern transition-all duration-300 page-transition-enter">
+  {/* Header Panel */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
         <div>
           <h2 className="font-poppins text-lg font-bold text-text-custom">
