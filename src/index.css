@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
@@ -6,69 +6,84 @@
   --font-sans: 'Inter', sans-serif;
   --font-poppins: 'Poppins', sans-serif;
 
-  --color-primary: #3B82F6;       /* Blue */
-  --color-secondary: #10B981;     /* Green */
-  --color-background-custom: #F8FAFC; /* Slate 50 */
-  --color-text-custom: #1E293B;       /* Slate 800 */
-  --color-accent: #FACC15;        /* Yellow */
+  --color-primary: #3B82F6;       /* Vibrant Royal Blue */
+  --color-secondary: #10B981;     /* Mint Emerald */
+  --color-accent: #06B6D4;        /* Electric Cyan */
+  --color-background-custom: #0B0F19; /* Deep Slate SaaS Navy */
+  --color-text-custom: #F8FAFC;       /* Crisp Slate White */
 }
 
 /* ==========================================================================
-   Behance-Style Animated Mesh & Grid Backgrounds
+   Behance Medical SaaS Background System
    ========================================================================== */
 
-.bg-mesh-light {
-  background-color: #F8FAFC;
+/* Deep Medical SaaS Canvas */
+.bg-saas-canvas {
+  background-color: #0B0F19;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.14) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.14) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.22) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.2) 0px, transparent 45%),
+    radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.18) 0px, transparent 45%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.2) 0px, transparent 45%);
   background-attachment: fixed;
+  color: #F8FAFC;
 }
 
-.bg-dot-pattern {
-  background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1.2px, transparent 1.2px);
+/* Medical Dot Matrix Overlay */
+.bg-saas-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-saas-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.2px, transparent 1.2px);
   background-size: 24px 24px;
 }
 
-.bg-grid-pattern {
+/* Light theme variation fallback for high contrast */
+.bg-mesh-light {
+  background-color: #F8FAFC;
   background-image: 
-    linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
-  background-size: 36px 36px;
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* ==========================================================================
-   Ambient Light Orbs & Floating Animations
+   Ambient Spotlights & Floating Animations
    ========================================================================== */
 
 @keyframes orb-float-1 {
   0%, 100% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(40px, -60px) scale(1.12); }
-  66% { transform: translate(-30px, 30px) scale(0.94); }
+  33% { transform: translate(50px, -70px) scale(1.15); }
+  66% { transform: translate(-35px, 35px) scale(0.92); }
 }
 
 @keyframes orb-float-2 {
   0%, 100% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(-50px, 40px) scale(1.1); }
-  66% { transform: translate(35px, -45px) scale(0.92); }
+  33% { transform: translate(-60px, 50px) scale(1.12); }
+  66% { transform: translate(40px, -50px) scale(0.9); }
 }
 
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-12px) rotate(1deg); }
+  50% { transform: translateY(-14px) rotate(1deg); }
 }
 
 @keyframes float-reverse {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(10px) rotate(-1deg); }
+  50% { transform: translateY(12px) rotate(-1deg); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.06); }
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.08); }
 }
 
 .animate-orb-1 {
@@ -92,15 +107,45 @@
 }
 
 /* ==========================================================================
-   Behance Ultra-Glassmorphism Cards & Panels
+   Behance Medical SaaS Glassmorphism Cards & Panels
    ========================================================================== */
 
-.glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+.glass-saas-card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #F8FAFC;
+}
+
+.glass-saas-card:hover {
+  transform: translateY(-6px) scale(1.008);
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 30px 60px -15px rgba(59, 130, 246, 0.25), 0 0 25px rgba(6, 182, 212, 0.15);
+}
+
+.glass-saas-card-light {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.06), 0 0 15px rgba(59, 130, 246, 0.06);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-saas-card-light:hover {
+  transform: translateY(-5px) scale(1.008);
+  box-shadow: 0 25px 45px -12px rgba(59, 130, 246, 0.18), 0 10px 15px -8px rgba(16, 185, 129, 0.12);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.glass-saas-header {
+  background: rgba(11, 15, 25, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-behance {
@@ -108,28 +153,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.06), 0 0 15px rgba(59, 130, 246, 0.05);
-}
-
-.glass-behance-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-behance-card:hover {
-  transform: translateY(-5px) scale(1.008);
-  box-shadow: 0 25px 45px -12px rgba(59, 130, 246, 0.16), 0 10px 15px -8px rgba(16, 185, 129, 0.1);
-  border-color: rgba(59, 130, 246, 0.35);
-}
-
-.glass-dark {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.06);
 }
 
 /* Page transitions */
@@ -157,11 +181,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #334155;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #475569;
 }
 
 body {
