@@ -139,9 +139,9 @@ Open **`http://localhost:5173`** in Google Chrome or any modern browser.
 
 | Member Name | Role / Tasks |
 | :--- | :--- |
-| **Lewis Mwangi** | HCI Design, Component Engineering, Tailwind CSS Styling, Routing & Chart Integration |
-| **[Group Member 2]** | User Research, Usability Testing & Documentation |
-| **[Group Member 3]** | Content Curation, Emergency Protocols & Presentation Preparation |
+| **Lewis Mwangi** | frontend  Design, front end, Tailwind CSS Styling, Routing & Chart Integration |
+| **[SinghGursher]** | backend,backend design |
+| **[Leslie Wambo]** | user testing,  Emergency Protocols & Presentation Preparation |
 | **[Group Member 4]** | |
 
 
