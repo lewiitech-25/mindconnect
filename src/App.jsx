@@ -19,6 +19,7 @@ import Profile from './pages/Profile'
 import Emergency from './pages/Emergency'
 import CounselorDashboard from './pages/CounselorDashboard'
 import AdminDashboard from './pages/AdminDashboard'
+
 import Counselors from './pages/admin/Counselors'
 import AdminResources from './pages/admin/Resources'
 import AdminProfile from './pages/admin/Profile'
@@ -28,7 +29,10 @@ import Sidebar from './components/Sidebar'
 
 import './App.css'
 
-const PrivateRoute = ({ children, allowedRoles }) => {
+const PrivateRoute = ({
+  children,
+  allowedRoles
+}) => {
   const {
     loading,
     isAuthenticated,
@@ -38,50 +42,71 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-slate-600">Loading...</p>
+        <p className="text-slate-600">
+          Loading...
+        </p>
       </div>
     )
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    )
   }
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
+  if (
+    allowedRoles &&
+    !allowedRoles.includes(role)
+  ) {
     if (role === 'admin') {
-      return <Navigate to="/admin" replace />
+      return (
+        <Navigate
+          to="/admin"
+          replace
+        />
+      )
     }
 
     if (role === 'counselor') {
-      return <Navigate to="/counselor" replace />
+      return (
+        <Navigate
+          to="/counselor"
+          replace
+        />
+      )
     }
 
-    return <Navigate to="/dashboard" replace />
+    return (
+      <Navigate
+        to="/dashboard"
+        replace
+      />
+    )
   }
 
-  return children
-}
-
-const PublicRoute = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar />
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar />
 
-      <div className="flex-1 w-full">
+      <div className="w-full flex-1 overflow-x-hidden">
         {children}
       </div>
     </div>
   )
 }
 
-const PrivateLayout = ({ children }) => {
+const PublicRoute = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Sidebar />
+    <div className="flex min-h-screen flex-col justify-between bg-slate-50">
+      <Navbar />
 
-      <main className="min-h-screen md:ml-64">
+      <div className="w-full flex-1">
         {children}
-      </main>
+      </div>
     </div>
   )
 }
@@ -122,10 +147,10 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute allowedRoles={['student']}>
-              <PrivateLayout>
-                <Dashboard />
-              </PrivateLayout>
+            <PrivateRoute
+              allowedRoles={['student']}
+            >
+              <Dashboard />
             </PrivateRoute>
           }
         />
@@ -133,10 +158,10 @@ function App() {
         <Route
           path="/mood"
           element={
-            <PrivateRoute allowedRoles={['student']}>
-              <PrivateLayout>
-                <MoodTracker />
-              </PrivateLayout>
+            <PrivateRoute
+              allowedRoles={['student']}
+            >
+              <MoodTracker />
             </PrivateRoute>
           }
         />
@@ -144,10 +169,10 @@ function App() {
         <Route
           path="/counseling"
           element={
-            <PrivateRoute allowedRoles={['student']}>
-              <PrivateLayout>
-                <Counseling />
-              </PrivateLayout>
+            <PrivateRoute
+              allowedRoles={['student']}
+            >
+              <Counseling />
             </PrivateRoute>
           }
         />
@@ -155,34 +180,70 @@ function App() {
         <Route
           path="/appointments"
           element={
-            <PrivateRoute allowedRoles={['student']}>
-              <PrivateLayout>
-                <Appointments />
-              </PrivateLayout>
+            <PrivateRoute
+              allowedRoles={['student']}
+            >
+              <Appointments />
             </PrivateRoute>
           }
         />
 
-        {/* Counsellor route */}
+        {/* Counselor routes */}
         <Route
           path="/counselor"
           element={
-            <PrivateRoute allowedRoles={['counselor', 'admin']}>
-              <PrivateLayout>
-                <CounselorDashboard />
-              </PrivateLayout>
+            <PrivateRoute
+              allowedRoles={[
+                'counselor',
+                'admin'
+              ]}
+            >
+              <CounselorDashboard />
             </PrivateRoute>
           }
         />
 
-        {/* Admin route */}
+        {/* Admin routes */}
         <Route
           path="/admin"
           element={
-            <PrivateRoute allowedRoles={['admin']}>
-              <PrivateLayout>
-                <AdminDashboard />
-              </PrivateLayout>
+            <PrivateRoute
+              allowedRoles={['admin']}
+            >
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/counselors"
+          element={
+            <PrivateRoute
+              allowedRoles={['admin']}
+            >
+              <Counselors />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/resources"
+          element={
+            <PrivateRoute
+              allowedRoles={['admin']}
+            >
+              <AdminResources />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/profile"
+          element={
+            <PrivateRoute
+              allowedRoles={['admin']}
+            >
+              <AdminProfile />
             </PrivateRoute>
           }
         />
@@ -192,11 +253,13 @@ function App() {
           path="/resources"
           element={
             <PrivateRoute
-              allowedRoles={['student', 'counselor', 'admin']}
+              allowedRoles={[
+                'student',
+                'counselor',
+                'admin'
+              ]}
             >
-              <PrivateLayout>
-                <Resources />
-              </PrivateLayout>
+              <Resources />
             </PrivateRoute>
           }
         />
@@ -205,61 +268,42 @@ function App() {
           path="/profile"
           element={
             <PrivateRoute
-              allowedRoles={['student', 'counselor', 'admin']}
+              allowedRoles={[
+                'student',
+                'counselor',
+                'admin'
+              ]}
             >
-              <PrivateLayout>
-                <Profile />
-              </PrivateLayout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/counselors"
-          element={
-            <PrivateRoute allowedRoles={['admin']}>
-              <PrivateLayout>
-                <Counselors />
-              </PrivateLayout>
+              <Profile />
             </PrivateRoute>
           }
         />
 
-        <Route
-          path="/admin/resources"
-          element={
-            <PrivateRoute allowedRoles={['admin']}>
-              <PrivateLayout>
-                <Resources />
-              </PrivateLayout>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/admin/profile"
-          element={
-            <PrivateRoute allowedRoles={['admin']}>
-              <PrivateLayout>
-                <Profile />
-              </PrivateLayout>
-            </PrivateRoute>
-          }
-        />
         <Route
           path="/emergency"
           element={
             <PrivateRoute
-              allowedRoles={['student', 'counselor', 'admin']}
+              allowedRoles={[
+                'student',
+                'counselor',
+                'admin'
+              ]}
             >
-              <PrivateLayout>
-                <Emergency />
-              </PrivateLayout>
+              <Emergency />
             </PrivateRoute>
           }
         />
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
       </Routes>
     </Router>
   )

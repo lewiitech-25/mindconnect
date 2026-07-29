@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaPhoneAlt, FaExclamationTriangle, FaHospital, FaShieldAlt, FaComments, FaRegBell } from 'react-icons/fa'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/config'
 
 export default function Emergency() {
   const [user, setUser] = useState(null)
@@ -10,17 +8,13 @@ export default function Emergency() {
   const navigate = useNavigate()
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(
-    auth,
-    (currentUser) => {
-      if (!currentUser) {
-        navigate('/login')
-      }
+    const storedUser = localStorage.getItem('studentUser')
+    if (!storedUser) {
+      navigate('/login')
+      return
     }
-  )
-
-  return () => unsubscribe()
-}, [navigate])
+    setUser(JSON.parse(storedUser))
+  }, [navigate])
 
   const handleMockCall = (label, number) => {
     setTriggeredAction(`Calling ${label} (${number}) in demo mode... Call successfully simulated.`)
@@ -65,7 +59,7 @@ export default function Emergency() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter">
+    <div className="min-h-screen bg-slate-50 pl-0 md:pl-64 transition-all duration-300">
       {/* Header Panel */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between">
         <h2 className="font-poppins text-lg font-bold text-red-600 flex items-center space-x-1.5">
