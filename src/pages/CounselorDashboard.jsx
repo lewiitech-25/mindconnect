@@ -1,5 +1,12 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+
+import {
+  getCounselorAppointments,
+  saveAppointmentClinicalNote,
+  updateAppointmentStatus
+} from '../firebase/appointmentService'
+
 import {
   FaUserMd,
   FaCalendarAlt,
@@ -15,8 +22,12 @@ import {
 import MoodCard from '../components/MoodCard'
 
 export default function CounselorDashboard() {
-  const [user, setUser] = useState(null)
   const [appointments, setAppointments] = useState([])
+  const [loadingAppointments, setLoadingAppointments] =
+    useState(true)
+  const [appointmentError, setAppointmentError] =
+    useState('')
+  const { profile: user } = useAuth()
   const [activeTab, setActiveTab] = useState('All')
   const [selectedStudentMoods, setSelectedStudentMoods] = useState(null)
   const [activeStudentName, setActiveStudentName] = useState('')
@@ -24,94 +35,67 @@ export default function CounselorDashboard() {
   const [clinicalNoteText, setClinicalNoteText] = useState('')
   const [isOnline, setIsOnline] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const navigate = useNavigate()
-
+  
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (!storedUser) {
-      navigate('/login')
-      return
-    }
-    const parsed = JSON.parse(storedUser)
-    if (parsed.role !== 'counselor' && parsed.role !== 'admin') {
-      navigate('/dashboard')
-      return
-    }
-    setUser(parsed)
-
-    const loadAllAppointments = () => {
-      const demoAppts = [
-        {
-          id: 'APT-849201',
-          studentName: 'Alex Mercer',
-          studentId: 'ST-94821',
-          studentEmail: 'student@university.edu',
-          counselorName: parsed.name || 'Dr. Jane Smith',
-          date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
-          dayName: 'Today',
-          timeSlot: '2:00 PM',
-          mode: 'Online Video',
-          notes: 'Exam stress and midterms exhaustion. Seeking grounding techniques.',
-          status: 'Confirmed'
-        },
-        {
-          id: 'APT-739102',
-          studentName: 'Sarah Jenkins',
-          studentId: 'ST-39102',
-          studentEmail: 'sarah@university.edu',
-          counselorName: parsed.name || 'Dr. Jane Smith',
-          date: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
-          dayName: 'Tomorrow',
-          timeSlot: '11:00 AM',
-          mode: 'In Person',
-          notes: 'Academic burnout and sleep insomnia consultation.',
-          status: 'Confirmed'
-        },
-        {
-          id: 'APT-628104',
-          studentName: 'Marcus Vance',
-          studentId: 'ST-10928',
-          studentEmail: 'marcus@university.edu',
-          counselorName: parsed.name || 'Dr. Jane Smith',
-          date: new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
-          dayName: 'Yesterday',
-          timeSlot: '9:00 AM',
-          mode: 'Online Video',
-          notes: 'Follow up on cognitive reframing exercises.',
-          status: 'Completed',
-          clinicalNote: 'Recommended 5-4-3-2-1 grounding exercises and Pomodoro 25/5 study splits. Student reported lower anxiety.'
-        }
-      ]
-
-      const existingUsers = localStorage.getItem('registeredUsers')
-      const users = existingUsers ? JSON.parse(existingUsers) : []
-      users.forEach((u) => {
-        const studentAppts = localStorage.getItem(`appointments_${u.email}`)
-        if (studentAppts) {
-          const parsedAppts = JSON.parse(studentAppts)
-          parsedAppts.forEach((a) => {
-            if (!demoAppts.some((d) => d.id === a.id)) {
-              demoAppts.unshift({ ...a, studentName: u.name, studentId: u.studentId, studentEmail: u.email })
-            }
-          })
-        }
-      })
-
-      setAppointments(demoAppts)
-    }
-
-    loadAllAppointments()
-  }, [navigate])
-
-  const handleUpdateStatus = (id, newStatus) => {
-    const updated = appointments.map((a) => {
-      if (a.id === id) {
-        return { ...a, status: newStatus }
-      }
-      return a
-    })
-    setAppointments(updated)
+  if (!user?.uid) {
+    return
   }
+
+  const loadAppointments = async () => {
+    try {
+      setLoadingAppointments(true)
+      setAppointmentError('')
+
+      const counselorAppointments =
+        await getCounselorAppointments(user.uid)
+
+      setAppointments(counselorAppointments)
+    } catch (error) {
+      console.error(
+        'Failed to load counsellor appointments:',
+        error
+      )
+
+      setAppointmentError(
+        'Unable to load your appointments. Please refresh the page.'
+      )
+    } finally {
+      setLoadingAppointments(false)
+    }
+  }
+
+  loadAppointments()
+}, [user?.uid])
+
+
+  const handleUpdateStatus = async (
+  id,
+  newStatus
+) => {
+  try {
+    await updateAppointmentStatus(id, newStatus)
+
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === id
+          ? {
+              ...appointment,
+              status: newStatus
+            }
+          : appointment
+      )
+    )
+  } catch (error) {
+    console.error(
+      'Failed to update appointment status:',
+      error
+    )
+
+    alert(
+      'Unable to update the appointment status.'
+    )
+  }
+}
 
   const handleViewStudentMoods = (email, studentName) => {
     setActiveStudentName(studentName)
@@ -127,18 +111,41 @@ export default function CounselorDashboard() {
     }
   }
 
-  const handleSaveClinicalNote = () => {
-    if (!clinicalNotesModal) return
-    const updated = appointments.map((a) => {
-      if (a.id === clinicalNotesModal.id) {
-        return { ...a, clinicalNote: clinicalNoteText, status: 'Completed' }
-      }
-      return a
-    })
-    setAppointments(updated)
+  const handleSaveClinicalNote = async () => {
+  if (!clinicalNotesModal) {
+    return
+  }
+
+  try {
+    await saveAppointmentClinicalNote(
+      clinicalNotesModal.id,
+      clinicalNoteText.trim()
+    )
+
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === clinicalNotesModal.id
+          ? {
+              ...appointment,
+              clinicalNote:
+                clinicalNoteText.trim(),
+              status: 'Completed'
+            }
+          : appointment
+      )
+    )
+
     setClinicalNotesModal(null)
     setClinicalNoteText('')
+  } catch (error) {
+    console.error(
+      'Failed to save clinical note:',
+      error
+    )
+
+    alert('Unable to save the clinical note.')
   }
+}
 
   const filteredAppts = appointments.filter((a) => {
     if (activeTab === 'Confirmed' && a.status !== 'Confirmed') return false
@@ -156,8 +163,28 @@ export default function CounselorDashboard() {
 
   if (!user) return null
 
+  if (loadingAppointments) {
   return (
-    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter text-slate-900">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="space-y-3 text-center">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-primary" />
+
+        <p className="text-xs font-semibold text-slate-500">
+          Loading appointments...
+        </p>
+      </div>
+    </div>
+  )
+}
+{appointmentError && (
+  <div className="mx-6 mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-600">
+    {appointmentError}
+  </div>
+)}
+
+
+  return (
+    <div className="min-h-screen bg-mesh-light bg-dot-pattern transition-all duration-300 page-transition-enter text-slate-900">
       
       {/* Header */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-2xs">

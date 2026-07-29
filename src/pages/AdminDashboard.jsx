@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  collection,
+  getDocs,
+  query,
+  where
+} from 'firebase/firestore'
+
+import { db } from '../firebase/config'
+import { useAuth } from '../context/AuthContext'
 import { Bar, Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -28,52 +37,120 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend)
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState(null)
-  const [counselors, setCounselors] = useState([
-    { id: 1, name: 'Dr. Jane Smith', specialty: 'Clinical Psychologist', activeSlots: 14, capacity: 20 },
-    { id: 2, name: 'Dr. John Doe', specialty: 'Stress & Burnout Advisor', activeSlots: 18, capacity: 20 },
-    { id: 3, name: 'Dr. Karen Vance', specialty: 'Academic Adjustment', activeSlots: 10, capacity: 15 }
-  ])
+  const { profile: user } = useAuth()
+  const [counselors, setCounselors] = useState([])
+  const [totalStudents, setTotalStudents] = useState(0)
+  const [activeConsultations, setActiveConsultations] =
+    useState(0)
 
-  const [addCounselorModal, setAddCounselorModal] = useState(false)
-  const [newCounselorName, setNewCounselorName] = useState('')
-  const [newCounselorSpecialty, setNewCounselorSpecialty] = useState('')
-  const [newCounselorEmail, setNewCounselorEmail] = useState('')
+  const [totalAppointments, setTotalAppointments] =
+    useState(0)
 
-  const navigate = useNavigate()
+  const [loadingDashboard, setLoadingDashboard] =
+    useState(true)
+
+  const [dashboardError, setDashboardError] =
+    useState('')
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('studentUser')
-    if (!storedUser) {
-      navigate('/login')
-      return
-    }
-    const parsed = JSON.parse(storedUser)
-    if (parsed.role !== 'admin') {
-      navigate('/dashboard')
-      return
-    }
-    setUser(parsed)
-  }, [navigate])
+  const loadDashboardData = async () => {
+    try {
+      setLoadingDashboard(true)
+      setDashboardError('')
 
-  const handleAddCounselor = (e) => {
-    e.preventDefault()
-    if (!newCounselorName || !newCounselorSpecialty) return
+      const studentsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'student')
+      )
 
-    const newObj = {
-      id: Date.now(),
-      name: newCounselorName,
-      specialty: newCounselorSpecialty,
-      activeSlots: 0,
-      capacity: 15
+      const counselorsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'counselor')
+      )
+
+      const appointmentsReference =
+        collection(db, 'appointments')
+
+      const [
+        studentsSnapshot,
+        counselorsSnapshot,
+        appointmentsSnapshot
+      ] = await Promise.all([
+        getDocs(studentsQuery),
+        getDocs(counselorsQuery),
+        getDocs(appointmentsReference)
+      ])
+
+      const counselorList = counselorsSnapshot.docs.map(
+        (counselorDocument) => {
+          const data = counselorDocument.data()
+
+          return {
+            id: counselorDocument.id,
+            ...data,
+            name: data.name || 'Unnamed Counselor',
+            specialty:
+              data.specialty ||
+              data.qualification ||
+              'General Counseling',
+            capacity: Number(data.capacity) || 15,
+            activeSlots: 0
+          }
+        }
+      )
+
+      const appointmentList =
+        appointmentsSnapshot.docs.map(
+          (appointmentDocument) => ({
+            id: appointmentDocument.id,
+            ...appointmentDocument.data()
+          })
+        )
+
+      const activeAppointments =
+        appointmentList.filter((appointment) =>
+          [
+            'Confirmed',
+            'Pending',
+            'In Progress'
+          ].includes(appointment.status)
+        )
+
+      const counselorsWithWorkload =
+        counselorList.map((counselor) => {
+          const counselorActiveAppointments =
+            activeAppointments.filter(
+              (appointment) =>
+                appointment.counselorId === counselor.id
+            )
+
+          return {
+            ...counselor,
+            activeSlots:
+              counselorActiveAppointments.length
+          }
+        })
+
+      setCounselors(counselorsWithWorkload)
+      setTotalStudents(studentsSnapshot.size)
+      setActiveConsultations(activeAppointments.length)
+      setTotalAppointments(appointmentList.length)
+    } catch (error) {
+      console.error(
+        'Failed to load admin dashboard:',
+        error
+      )
+
+      setDashboardError(
+        'Unable to load dashboard statistics.'
+      )
+    } finally {
+      setLoadingDashboard(false)
     }
-
-    setCounselors([...counselors, newObj])
-    setNewCounselorName('')
-    setNewCounselorSpecialty('')
-    setNewCounselorEmail('')
-    setAddCounselorModal(false)
   }
+
+  loadDashboardData()
+}, [])
 
   const departmentChartData = {
     labels: ['Comp Sci', 'Engineering', 'Business', 'Medicine', 'Law', 'Arts'],
@@ -117,8 +194,22 @@ export default function AdminDashboard() {
 
   if (!user) return null
 
+  if (loadingDashboard) {
   return (
-    <div className="min-h-screen bg-mesh-light bg-dot-pattern pl-0 md:pl-64 transition-all duration-300 page-transition-enter text-slate-900">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="text-center">
+        <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-primary" />
+
+        <p className="mt-3 text-xs font-semibold text-slate-500">
+          Loading admin dashboard...
+        </p>
+      </div>
+    </div>
+  )
+}
+
+  return (
+    <div className="min-h-screen bg-mesh-light bg-dot-pattern transition-all duration-300 page-transition-enter text-slate-900">
       
       {/* Header */}
       <header className="sticky top-0 z-30 h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shadow-2xs">
@@ -140,7 +231,11 @@ export default function AdminDashboard() {
 
       {/* Main Workspace */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
-        
+        {dashboardError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+            {dashboardError}
+          </div>
+        )}
         {/* Dark Banner with High-Contrast White Text */}
         <div className="rounded-3xl bg-slate-900 p-7 text-white shadow-xl space-y-2 border border-slate-800">
           <span className="text-xs font-extrabold uppercase tracking-wider text-purple-400">Campus Oversight & HCI Research</span>
@@ -157,8 +252,12 @@ export default function AdminDashboard() {
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Total Registered Students</span>
               <FaUsers className="text-primary text-base" />
             </div>
-            <div className="text-3xl font-extrabold text-slate-900">1,482</div>
-            <span className="text-[11px] font-bold text-emerald-700">↑ +12% this semester</span>
+            <div className="text-3xl font-extrabold text-slate-900">
+              {totalStudents}
+            </div>
+            <span className="text-[11px] font-bold text-slate-600">
+              Registered student accounts
+            </span>
           </div>
 
           <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md space-y-1">
@@ -166,17 +265,26 @@ export default function AdminDashboard() {
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Active Consultations</span>
               <FaUserMd className="text-secondary text-base" />
             </div>
-            <div className="text-3xl font-extrabold text-emerald-600">128</div>
-            <span className="text-[11px] font-bold text-slate-600">Across 3 faculty advisors</span>
+            <div className="text-3xl font-extrabold text-emerald-600">
+              {activeConsultations}
+            </div>
+            <span className="text-[11px] font-bold text-slate-600">
+              Across {counselors.length}{' '}
+              {counselors.length === 1
+                ? 'counselor'
+                : 'counselors'}
+            </span>
           </div>
 
           <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md space-y-1">
             <div className="flex items-center justify-between text-slate-600">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Campus Wellness Index</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Total Appointments</span>
               <FaChartLine className="text-purple-600 text-base" />
             </div>
-            <div className="text-3xl font-extrabold text-purple-700">78%</div>
-            <span className="text-[11px] font-bold text-emerald-700">Stable psychological balance</span>
+            <div className="text-3xl font-extrabold text-purple-700">
+              {totalAppointments}
+            </div>
+            <span className="text-[11px] font-bold text-emerald-700">Consultations</span>
           </div>
 
           <div className="p-5 rounded-3xl bg-white border border-red-200 shadow-md space-y-1">
@@ -230,7 +338,8 @@ export default function AdminDashboard() {
               <span>Campus Counselor Roster & Workload</span>
             </h3>
             <button
-              onClick={() => setAddCounselorModal(true)}
+              type="button"
+              onClick={() => navigate('/admin/counselors')}
               className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-md hover:bg-primary/95 transition-all"
             >
               <FaPlus size={10} />
@@ -239,6 +348,18 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {!loadingDashboard &&
+              counselors.length === 0 && (
+                <div className="sm:col-span-3 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center">
+                  <p className="text-sm font-bold text-slate-700">
+                    No counselor accounts found
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    Add a counselor from the counselor management page.
+                  </p>
+                </div>
+              )}
             {counselors.map((c) => (
               <div key={c.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3 shadow-2xs">
                 <div className="flex items-center space-x-3">
@@ -260,7 +381,12 @@ export default function AdminDashboard() {
                   <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary rounded-full transition-all duration-500"
-                      style={{ width: `${(c.activeSlots / c.capacity) * 100}%` }}
+                      style={{
+                        width: `${Math.min(
+                          (c.activeSlots / Math.max(c.capacity, 1)) * 100,
+                          100
+                        )}%`
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -308,72 +434,6 @@ export default function AdminDashboard() {
         </div>
 
       </main>
-
-      {/* Modal: Add Counselor */}
-      {addCounselorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4 text-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-poppins font-extrabold text-slate-900 text-sm">Add New Clinical Counselor</h3>
-              <button onClick={() => setAddCounselorModal(false)} className="text-slate-400 hover:text-slate-600">
-                <FaTimes />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddCounselor} className="space-y-3">
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-700">Counselor Name</label>
-                <input
-                  type="text"
-                  value={newCounselorName}
-                  onChange={(e) => setNewCounselorName(e.target.value)}
-                  placeholder="e.g. Dr. Emily Watson"
-                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs text-slate-900 outline-none focus:border-primary"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-700">Specialty Path</label>
-                <input
-                  type="text"
-                  value={newCounselorSpecialty}
-                  onChange={(e) => setNewCounselorSpecialty(e.target.value)}
-                  placeholder="e.g. Cognitive Behavioral Therapy"
-                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs text-slate-900 outline-none focus:border-primary"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase text-slate-700">Email Address</label>
-                <input
-                  type="email"
-                  value={newCounselorEmail}
-                  onChange={(e) => setNewCounselorEmail(e.target.value)}
-                  placeholder="counselor@university.edu"
-                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs text-slate-900 outline-none focus:border-primary"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setAddCounselorModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 text-slate-700 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/95 shadow-sm"
-                >
-                  Save Counselor
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
     </div>
   )
 }

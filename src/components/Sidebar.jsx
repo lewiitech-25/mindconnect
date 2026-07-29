@@ -1,15 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   NavLink,
   useLocation,
-  useNavigate,
+  useNavigate
 } from 'react-router-dom'
-import {
-  onAuthStateChanged,
-  signOut,
-} from 'firebase/auth'
-import { auth } from '../firebase/config'
-import { getUserProfile } from '../firebase/userService'
+import { useAuth } from '../context/AuthContext'
 
 import {
   FaBrain,
@@ -23,136 +18,88 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaUserMd,
-  FaUserShield,
+  FaUserShield
 } from 'react-icons/fa'
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [user, setUser] = useState(null)
 
   const navigate = useNavigate()
   const location = useLocation()
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (currentUser) => {
-        if (!currentUser) {
-          setUser(null)
-          return
-        }
+  const {
+  profile: user,
+  role,
+  logout
+} = useAuth()
 
-        const fallbackUser = {
-          uid: currentUser.uid,
-          email: currentUser.email,
-          name:
-            currentUser.displayName ||
-            currentUser.email?.split('@')[0] ||
-            'Student',
-          role: 'student',
-        }
-
-        setUser(fallbackUser)
-
-        try {
-          const profile = await getUserProfile(
-            currentUser.uid
-          )
-
-          if (profile) {
-            setUser({
-              ...fallbackUser,
-              ...profile,
-              role: profile.role || 'student',
-            })
-          }
-        } catch (error) {
-          if (
-            error.message !==
-            'User profile was not found.'
-          ) {
-            console.error(
-              'Failed to load sidebar user:',
-              error
-            )
-          }
-        }
-      }
-    )
-
-    return () => unsubscribe()
-  }, [])
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth)
-      setUser(null)
-      navigate('/login', { replace: true })
-    } catch (error) {
-      console.error(
-        'Failed to log out:',
-        error
-      )
-    }
+  try {
+    await logout()
+    navigate('/login', { replace: true })
+  } catch (error) {
+    console.error('Failed to log out:', error)
   }
-
-  const role = user?.role || 'student'
+}
 
   const getHomePath = () => {
-    if (role === 'counselor') {
-      return '/counselor'
-    }
-
     if (role === 'admin') {
       return '/admin'
+    }
+
+    if (role === 'counselor') {
+      return '/counselor'
     }
 
     return '/dashboard'
   }
 
   const getMenuItems = () => {
+    if (role === 'admin') {
+      return [
+        {
+          path: '/admin',
+          name: 'Dashboard',
+          icon: FaUserShield,
+          end: true
+        },
+        {
+          path: '/admin/counselors',
+          name: 'Counselor Queue',
+          icon: FaUserMd
+        },
+        {
+          path: '/admin/resources',
+          name: 'Wellness Library',
+          icon: FaBookOpen
+        },
+        {
+          path: '/admin/profile',
+          name: 'Profile Settings',
+          icon: FaUser
+        }
+      ]
+    }
+
     if (role === 'counselor') {
       return [
         {
           path: '/counselor',
           name: 'Counselor Queue',
           icon: FaUserMd,
+          end: true
         },
         {
           path: '/resources',
           name: 'Wellness Library',
-          icon: FaBookOpen,
+          icon: FaBookOpen
         },
         {
           path: '/profile',
           name: 'Profile Settings',
-          icon: FaUser,
-        },
-      ]
-    }
-
-    if (role === 'admin') {
-      return [
-        {
-          path: '/admin',
-          name: 'Campus Analytics',
-          icon: FaUserShield,
-        },
-        {
-          path: '/counselor',
-          name: 'Counselor Queue',
-          icon: FaUserMd,
-        },
-        {
-          path: '/resources',
-          name: 'Wellness Library',
-          icon: FaBookOpen,
-        },
-        {
-          path: '/profile',
-          name: 'Profile Settings',
-          icon: FaUser,
-        },
+          icon: FaUser
+        }
       ]
     }
 
@@ -161,27 +108,28 @@ export default function Sidebar() {
         path: '/dashboard',
         name: 'Dashboard',
         icon: FaThLarge,
+        end: true
       },
       {
         path: '/mood',
         name: 'Mood Tracker',
-        icon: FaSmile,
+        icon: FaSmile
       },
       {
         path: '/appointments',
         name: 'Appointments',
-        icon: FaCalendarAlt,
+        icon: FaCalendarAlt
       },
       {
         path: '/resources',
         name: 'Resources',
-        icon: FaBookOpen,
+        icon: FaBookOpen
       },
       {
         path: '/profile',
         name: 'Profile Settings',
-        icon: FaUser,
-      },
+        icon: FaUser
+      }
     ]
   }
 
@@ -190,11 +138,35 @@ export default function Sidebar() {
   const isPublicPage = [
     '/',
     '/login',
-    '/register',
+    '/register'
   ].includes(location.pathname)
 
   if (isPublicPage) {
     return null
+  }
+
+  const getAvatarSource = () => {
+    if (role === 'counselor') {
+      return '/images/student_portrait_2.jpg'
+    }
+
+    return '/images/student_portrait_1.jpg'
+  }
+
+  const getDisplayName = () => {
+    if (user?.name) {
+      return user.name
+    }
+
+    if (role === 'admin') {
+      return 'Administrator'
+    }
+
+    if (role === 'counselor') {
+      return 'Counselor'
+    }
+
+    return 'Student'
   }
 
   return (
@@ -233,7 +205,9 @@ export default function Sidebar() {
           <button
             type="button"
             onClick={() =>
-              setIsCollapsed((previous) => !previous)
+              setIsCollapsed(
+                (previousValue) => !previousValue
+              )
             }
             className="hidden h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition-colors hover:border-primary hover:text-primary md:flex"
             aria-label={
@@ -255,21 +229,17 @@ export default function Sidebar() {
           <div className="m-4 flex items-center space-x-3 rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
             <div className="relative shrink-0">
               <img
-                src={
-                  role === 'counselor'
-                    ? '/images/student_portrait_2.jpg'
-                    : '/images/student_portrait_1.jpg'
-                }
-                alt="Profile avatar"
+                src={getAvatarSource()}
+                alt={`${getDisplayName()} profile`}
                 className="h-10 w-10 rounded-full border-2 border-primary object-cover shadow-sm"
               />
 
               <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
             </div>
 
-            <div className="overflow-hidden">
+            <div className="min-w-0 overflow-hidden">
               <h4 className="truncate text-sm font-extrabold leading-snug text-slate-900">
-                {user.name || 'Student'}
+                {getDisplayName()}
               </h4>
 
               <span className="inline-block rounded bg-primary/10 px-2 py-0.5 text-[9px] font-extrabold uppercase text-primary">
@@ -283,12 +253,8 @@ export default function Sidebar() {
           <div className="my-4 flex justify-center">
             <div className="relative">
               <img
-                src={
-                  role === 'counselor'
-                    ? '/images/student_portrait_2.jpg'
-                    : '/images/student_portrait_1.jpg'
-                }
-                alt="Profile avatar"
+                src={getAvatarSource()}
+                alt={`${getDisplayName()} profile`}
                 className="h-10 w-10 rounded-full border-2 border-primary object-cover shadow-sm"
               />
 
@@ -306,6 +272,7 @@ export default function Sidebar() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                end={item.end || false}
                 title={
                   isCollapsed
                     ? item.name
@@ -362,7 +329,9 @@ export default function Sidebar() {
           type="button"
           onClick={handleLogout}
           title={
-            isCollapsed ? 'Logout' : undefined
+            isCollapsed
+              ? 'Logout'
+              : undefined
           }
           className="flex w-full items-center space-x-3 rounded-xl px-3.5 py-3 text-sm font-bold text-slate-700 transition-all duration-200 hover:bg-slate-100 hover:text-red-600"
           aria-label="Logout"

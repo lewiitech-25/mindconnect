@@ -1,14 +1,11 @@
-import { useEffect, useState } from 'react'
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
+  Navigate
 } from 'react-router-dom'
-import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
 
-import { auth, db } from './firebase/config'
+import { useAuth } from './context/AuthContext'
 
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -22,6 +19,9 @@ import Profile from './pages/Profile'
 import Emergency from './pages/Emergency'
 import CounselorDashboard from './pages/CounselorDashboard'
 import AdminDashboard from './pages/AdminDashboard'
+import Counselors from './pages/admin/Counselors'
+import AdminResources from './pages/admin/Resources'
+import AdminProfile from './pages/admin/Profile'
 
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
@@ -29,61 +29,31 @@ import Sidebar from './components/Sidebar'
 import './App.css'
 
 const PrivateRoute = ({ children, allowedRoles }) => {
-  const [currentUser, setCurrentUser] = useState(null)
-  const [userRole, setUserRole] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser) {
-        setCurrentUser(null)
-        setUserRole(null)
-        setLoading(false)
-        return
-      }
-
-      try {
-        setCurrentUser(firebaseUser)
-
-        const userDocument = await getDoc(
-          doc(db, 'users', firebaseUser.uid)
-        )
-
-        if (userDocument.exists()) {
-          setUserRole(userDocument.data().role || 'student')
-        } else {
-          setUserRole('student')
-        }
-      } catch (error) {
-        console.error('Unable to load user role:', error)
-        setUserRole('student')
-      } finally {
-        setLoading(false)
-      }
-    })
-
-    return () => unsubscribe()
-  }, [])
+  const {
+    loading,
+    isAuthenticated,
+    role
+  } = useAuth()
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <p className="text-slate-600">Loading...</p>
       </div>
     )
   }
 
-  if (!currentUser) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
-    if (userRole === 'counselor') {
-      return <Navigate to="/counselor" replace />
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    if (role === 'admin') {
+      return <Navigate to="/admin" replace />
     }
 
-    if (userRole === 'admin') {
-      return <Navigate to="/admin" replace />
+    if (role === 'counselor') {
+      return <Navigate to="/counselor" replace />
     }
 
     return <Navigate to="/dashboard" replace />
@@ -243,7 +213,38 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/admin/counselors"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <PrivateLayout>
+                <Counselors />
+              </PrivateLayout>
+            </PrivateRoute>
+          }
+        />
 
+        <Route
+          path="/admin/resources"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <PrivateLayout>
+                <Resources />
+              </PrivateLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/profile"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <PrivateLayout>
+                <Profile />
+              </PrivateLayout>
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/emergency"
           element={

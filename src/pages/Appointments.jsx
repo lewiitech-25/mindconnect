@@ -83,7 +83,7 @@ export default function Appointments() {
     try {
       setCancellingId(id)
 
-      await cancelAppointment(currentUser.uid, id)
+      await cancelAppointment(id)
 
       setAppointments((currentAppointments) =>
         currentAppointments.filter(

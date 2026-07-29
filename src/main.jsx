@@ -1,12 +1,16 @@
-console.log("MAIN.JSX IS RUNNING");
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+
 import App from './App.jsx'
+import { AuthProvider } from './context/AuthContext'
+
+import './index.css'
 import './firebase/config'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </StrictMode>
 )

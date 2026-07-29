@@ -138,6 +138,27 @@ export default function Navbar() {
     navigate(`/#${sectionId}`)
   }
 
+  const handleHomeNavigation = () => {
+  setIsOpen(false)
+
+  if (location.pathname === '/') {
+    window.history.replaceState(
+      null,
+      '',
+      '/'
+    )
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+
+    return
+  }
+
+  navigate('/')
+}
+
   const getDashboardPath = () => {
     if (user?.role === 'admin') {
       return '/admin'
@@ -182,10 +203,10 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 w-full glass-saas-header transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link
-            to="/"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center space-x-2 group"
+          <button
+            type="button"
+            onClick={handleHomeNavigation}
+            className="flex cursor-pointer items-center space-x-2 group"
             aria-label="Go to MindConnect home page"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
@@ -198,7 +219,7 @@ export default function Navbar() {
                 Connect
               </span>
             </span>
-          </Link>
+          </button>
 
           <div className="hidden items-center space-x-8 md:flex">
             <button
