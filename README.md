@@ -5,13 +5,6 @@
 
 ---
 
-## 🌟 Live Demo & Quick Access
-
-- **GitHub Repository**: [https://github.com/lewiitech-25/mindconnect](https://github.com/lewiitech-25/mindconnect)
-- **Live Web Preview**: [https://lewiitech-25.github.io/mindconnect/](https://lewiitech-25.github.io/mindconnect/)
-
----
-
 ## ⚡ Instant Demo Credentials
 
 You can test all 3 role perspectives on the login screen using the **1-Click Demo Buttons** or manual credentials:
@@ -24,9 +17,7 @@ You can test all 3 role perspectives on the login screen using the **1-Click Dem
 
 ---
 
-## 🛠️ How to Clone & Run Locally from GitHub
-
-Anyone cloning this repository can launch the project locally in under 60 seconds:
+## 🛠️ How to Run Locally
 
 ### Step 1: Clone Repository
 ```bash
@@ -39,12 +30,13 @@ cd mindconnect
 npm install
 ```
 
-### Step 3: Start Development Server
+### Step 3: Start Local Host Server
 ```bash
 npm run dev
 ```
 
-Open your browser and navigate to `http://localhost:5173/` (or the port shown in your terminal).
+Open your browser and navigate to:  
+👉 **`http://localhost:5173/`**
 
 ---
 
@@ -55,25 +47,6 @@ Open your browser and navigate to `http://localhost:5173/` (or the port shown in
 - **Chart.js & React-Chartjs-2**: Interactive line & bar charts for mood analytics and department stress metrics.
 - **Firebase Integration Modules**: Built-in support for Firebase Auth & Firestore (`src/firebase/`).
 - **HCI Principles**: Built strictly following Nielsen's 10 Usability Heuristics (Low Cognitive Load, Clear Feedback, Instant Recovery).
-
----
-
-## 📁 Project Structure
-
-```
-mindconnect/
-├── public/
-│   └── images/              # Realistic student portraits & campus media
-├── src/
-│   ├── components/          # Navbar, Sidebar, Footer, MoodCard, AppointmentCard
-│   ├── firebase/            # Firebase config, user, mood, and appointment services
-│   ├── pages/               # Home, Login, Register, Dashboard, Counselor, Admin, etc.
-│   ├── App.jsx              # Role-Based Routing & Private Guards
-│   └── index.css            # Behance SaaS design system & Tailwind styles
-├── .github/workflows/       # GitHub Pages automated deployment workflow
-├── vite.config.js           # Base relative path routing
-└── package.json
-```
 
 ---
 
